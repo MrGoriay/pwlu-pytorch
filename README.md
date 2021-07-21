@@ -15,6 +15,6 @@ This is an implementation that I am going to use in my own projects, which means
 - **NO** extensive testing
 - **Contributions and feedback are welcome**
 ## Roadmap
-[ ] Tested on several real datasets
-[ ] Efficiency improved
-[ ] Replicate in JAX-based libraries?
+- [ ] Tested on several real datasets
+- [ ] Efficiency improved
+- [ ] Replicate in JAX-based libraries?
