@@ -12,7 +12,7 @@ Pay attention to the _mode_ argument, you need to set it to __1__ to get a dynam
 ### Notes on this project
 This is an implementation that I am going to use in my own projects, which means several things:
 - Project will be upgrading
-- **NO** extensive testing
+- No extensive testing
 - **Contributions and feedback are welcome**
 ## Roadmap
 - [ ] Tested on several real datasets
