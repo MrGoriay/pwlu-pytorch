@@ -86,8 +86,8 @@ class PWLA3d(torch.nn.Module):
             Kdata = (self.Yidx[(DATAind).type(torch.int64)+1]-self.Yidx[DATAind.type(torch.int64)])/d#SLOPE for data
             return  maskBl*((x-self.Bl)*self.Kl+self.Yidx[0]) + maskBr*((x-self.Br)*self.Kr + self.Yidx[-1]) + maskOther*((x-Bdata)*Kdata + Ydata)
         else:
-            mean = x.mean([0,1,2,-1]) #{TODO}: Possibly split along channel axis
-            var = x.var([0,1,2,-1]) #{TODO}: Possibly split along channel axis
+            mean = x.detach().mean([0,1,2,-1]) #{TODO}: Possibly split along channel axis 
+            var = x.detach().var([0,1,2,-1]) #{TODO}: Possibly split along channel axis
             self.running_mean = (self.momentum * self.running_mean) + (1.0-self.momentum) * mean # .to(input.device)
             self.running_var = (self.momentum * self.running_var) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*var)
             return nn.functional.relu(x)
