@@ -17,7 +17,7 @@ class PWLA2d(torch.nn.Module):
         self.Br = torch.nn.Parameter(torch.tensor(10.))
         self.Bl = torch.nn.Parameter(torch.tensor(-10.))
         self.register_buffer('running_mean', torch.zeros(1))
-        self.register_buffer('running_var', torch.ones(1))
+        self.register_buffer('running_std', torch.ones(1))
         self.Kl = torch.nn.Parameter(torch.tensor(0.))
         self.Kr = torch.nn.Parameter(torch.tensor(1.))
         self.Yidx = torch.nn.Parameter(nn.functional.relu(torch.linspace(self.Bl.item(),self.Br.item(),self.N+1)))
@@ -25,14 +25,14 @@ class PWLA2d(torch.nn.Module):
 
     def reset_parameters(self):
         self.running_mean.zero_()
-        self.running_var.fill_(1)
+        self.running_std.fill_(1)
 
     def forward(self, x, mode=0):
         if mode==0:
             mean = x.mean([0,1,-1]) #{TODO}: Possibly split along channel axis
-            var = x.std([0,1,-1]) #{TODO}: Possibly split along channel axis
+            std = x.std([0,1,-1]) #{TODO}: Possibly split along channel axis
             self.running_mean = (self.momentum * self.running_mean) + (1.0-self.momentum) * mean # .to(input.device)
-            self.running_var = (self.momentum * self.running_var) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*var)
+            self.running_std = (self.momentum * self.running_std) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*std)
             return nn.functional.relu(x)
         else:
             d=(self.Br-self.Bl)/self.N#Interval length
@@ -62,7 +62,7 @@ class PWLA3d(torch.nn.Module):
         self.Br = torch.nn.Parameter(torch.tensor(10.))
         self.Bl = torch.nn.Parameter(torch.tensor(-10.))
         self.register_buffer('running_mean', torch.zeros(1))
-        self.register_buffer('running_var', torch.ones(1))
+        self.register_buffer('running_std', torch.ones(1))
         self.Kl = torch.nn.Parameter(torch.tensor(0.))
         self.Kr = torch.nn.Parameter(torch.tensor(1.))
         self.Yidx = torch.nn.Parameter(nn.functional.relu(torch.linspace(self.Bl.item(),self.Br.item(),self.N+1)))
@@ -70,7 +70,7 @@ class PWLA3d(torch.nn.Module):
 
     def reset_parameters(self):
         self.running_mean.zero_()
-        self.running_var.fill_(1)
+        self.running_std.fill_(1)
 
     def forward(self, x, mode):
         if mode==1:
@@ -86,10 +86,10 @@ class PWLA3d(torch.nn.Module):
             Kdata = (self.Yidx[(DATAind).type(torch.int64)+1]-self.Yidx[DATAind.type(torch.int64)])/d#SLOPE for data
             return  maskBl*((x-self.Bl)*self.Kl+self.Yidx[0]) + maskBr*((x-self.Br)*self.Kr + self.Yidx[-1]) + maskOther*((x-Bdata)*Kdata + Ydata)
         else:
-            mean = x.detach().mean([0,1,2,-1]) #{TODO}: Possibly split along channel axis 
-            var = x.detach().std([0,1,2,-1]) #{TODO}: Possibly split along channel axis
+            mean = x.detach().mean([0,1,2,-1]) #{TODO}: Possibly split along channel axis
+            std = x.detach().std([0,1,2,-1]) #{TODO}: Possibly split along channel axis
             self.running_mean = (self.momentum * self.running_mean) + (1.0-self.momentum) * mean # .to(input.device)
-            self.running_var = (self.momentum * self.running_var) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*var)
+            self.running_std = (self.momentum * self.running_std) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*std)
             return nn.functional.relu(x)
 
 '''After Phase I ends, update parameters using the folowing procedure'''
