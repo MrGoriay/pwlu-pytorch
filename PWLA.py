@@ -30,9 +30,9 @@ class PWLA2d(torch.nn.Module):
     def forward(self, x, mode=0):
         if mode==0:
             mean = x.mean([0,1,-1]) #{TODO}: Possibly split along channel axis
-            std = x.std([0,1,-1]) #{TODO}: Possibly split along channel axis
+            std = x.std([0,1,-1], unbiased=True) #{TODO}: Possibly split along channel axis
             self.running_mean = (self.momentum * self.running_mean) + (1.0-self.momentum) * mean # .to(input.device)
-            self.running_std = (self.momentum * self.running_std) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*std)
+            self.running_std = (self.momentum * self.running_std) + (1.0-self.momentum) * std
             return nn.functional.relu(x)
         else:
             d=(self.Br-self.Bl)/self.N#Interval length
@@ -87,9 +87,9 @@ class PWLA3d(torch.nn.Module):
             return  maskBl*((x-self.Bl)*self.Kl+self.Yidx[0]) + maskBr*((x-self.Br)*self.Kr + self.Yidx[-1]) + maskOther*((x-Bdata)*Kdata + Ydata)
         else:
             mean = x.detach().mean([0,1,2,-1]) #{TODO}: Possibly split along channel axis
-            std = x.detach().std([0,1,2,-1]) #{TODO}: Possibly split along channel axis
+            std = x.detach().std([0,1,2,-1], unbiased=True) #{TODO}: Possibly split along channel axis
             self.running_mean = (self.momentum * self.running_mean) + (1.0-self.momentum) * mean # .to(input.device)
-            self.running_std = (self.momentum * self.running_std) + (1.0-self.momentum) * (x.shape[0]/(x.shape[0]-1)*std)
+            self.running_std = (self.momentum * self.running_std) + (1.0-self.momentum) * std
             return nn.functional.relu(x)
 
 '''After Phase I ends, update parameters using the folowing procedure'''
